@@ -1,0 +1,43 @@
+#! /usr/bin/env python3
+
+import argparse
+
+import numpy as np
+import pandas as pd
+
+from pwas.shared_utils.util import log, get_parser_file_type, get_parser_directory_type
+from pwas import GenotypingManager
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description = 'Combines all variants spread across multiple sources (e.g. per chromosome) into a single CSV file.')
+    parser.add_argument('--genotyping-spec-file', dest = 'genotyping_spec_file', metavar = '/path/to/genotyping_spec.csv', \
+            type = get_parser_file_type(parser, must_exist = True), required = True, help = 'Path to a CSV file specifying all the genotyping sources ' + \
+            'to be combined. The file is expected to have the following two headers: "name" (the name of each source) and "format" (its format; ' + \
+            'currently supporting "plink" and "bgen"). Rows of PLINK format are expected to have "bed_file_path", "bim_file_path" and "fam_file_path" ' + \
+            'headers. Rows of BGEN format are expcted to have "bgen_file_path", "bgi_file_path" and "sample_file_path".')
+    parser.add_argument('--output-file', dest = 'output_file', metavar = '/path/to/all_variants.csv', type = get_parser_file_type(parser), \
+            required = True, help = 'Path to the output CSV file.')
+    parser.add_argument('--temp-dir', dest = 'temp_dir', type = get_parser_directory_type(parser), default = '/tmp', help = 'A directory in which to ' + \
+            'create temporary links, if using the PLINK format.')
+    parser.add_argument('--verbose', dest = 'verbose', action = 'store_true', help = 'Whether to print information regarding the progress of this operation.')
+    args = parser.parse_args()
+    
+    genotyping_spec_df = pd.read_csv(args.genotyping_spec_file)
+    genotyping_manager = GenotypingManager(genotyping_spec_df, args.temp_dir)
+    all_variants = []
+    
+    for genotype_source_index, genotype_source, genotyping_reader in genotyping_manager.iter_genotyping_readers():
+    
+        if args.verbose:
+            log('Processing source %d of %d (%s)...' % (genotype_source_index + 1, len(genotyping_spec_df), genotype_source['name']))
+    
+        source_variants = genotyping_reader.get_variants()
+        source_variants.insert(0, 'genotype_source_index', genotype_source_index)
+        source_variants.insert(1, 'genotype_source_variant_index', np.arange(len(source_variants)))
+        all_variants.append(source_variants)
+        
+    if args.verbose:
+        log('Writing output CSV file...')
+        
+    pd.concat(all_variants).to_csv(args.output_file, index = False)

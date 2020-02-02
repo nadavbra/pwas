@@ -1,0 +1,1 @@
+from .genotype import GenotypingManager
