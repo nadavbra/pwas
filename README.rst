@@ -1,4 +1,10 @@
-Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies.
-Read more in our manuscript: https://www.biorxiv.org/content/10.1101/812289v1
+What is PWAS?
+=============
 
-An effort to organize and upload to code of PWAS is currently underway (should be completed within a month or so). Meanwhile, feel free to contact us at nadav.brandes@mail.huji.ac.il.
+Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies.
+
+Read more in our manuscript:Nadav Brandes, Nathan Linial, Michal Linial, PWAS: Proteome-Wide Association Study, bioRxiv, https://doi.org/10.1101/812289
+
+
+Usage
+=====
