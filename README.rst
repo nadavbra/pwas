@@ -17,7 +17,7 @@ PWAS requires the following input files:
 
 1. Phenotypes and (optionally) covariates in a CSV file
 
-2. Genotype files [Currently the PLINK/BED and BGEN formats are supported. Work to support VCF is currently underway. It should be relatively easy to extend the code to support other formats as well.]
+2. Genotype files [Currently only the PLINK/BED and BGEN formats are supported. An effort to also support VCF files is currently underway, and it should be relatively easy to extend the code to support other formats as well.]
 
 
 Running PWAS consists of the following steps:
@@ -44,6 +44,32 @@ Running PWAS consists of the following steps:
    
    4.2. Collect the results and perform multiple-hypothesis testing correction
    
+To ensure maximal flexibility and allow the integration of PWAS with other tools in a modular way, each of these steps consists of a separate command-line with well-defined inputs and outputs. This means that each of these steps can be skipped at your choice, given that you can provide the inputs necessary for the following steps by some alternative way.
+   
    
 Step 1: Obtain the input genotype & phenotype files
 ---------------------------------------------------
+
+As stated, PWAS requires a CSV file with the phenotypic fields of your cohort. This CSV file requires a single column designated for unique sample identifiers (which should correspond to the identifiers in your genotype files). The CSV file should also contain one or more columns for the phenotypes you wish to test, and (preferably) covariates you wish to account for when testing the phenotypes (e.g. sex, age, genetic principal components, genetic batch, etc.). All phenotype and covariate fields must be numeric (i.e. 0s and 1s in the case of binary fields, or any number in the case of continuous fields).
+
+If you work with the `UK Biobank <https://www.ukbiobank.ac.uk/>`_, you can use the `ukbb_parser package <https://github.com/nadavbra/ukbb_parser>`_ to easily create a CSV dataset with selected phenotype fields (and automatically extracted covariates for genetic association tests) through its `command-line interface <https://github.com/nadavbra/ukbb_parser#command-line-api>`_.
+
+For example, the following command will create a suitable dataset with 49 prominent phenotypes (both binary/categorical and continuous) and 173 covariates extracted from the UK Biobank (assuming that you have access to the relevant UKBB fields).
+
+.. code-block:: cshell
+
+    wget https://raw.githubusercontent.com/nadavbra/ukbb_parser/master/examples/phenotype_specs.py
+    create_ukbb_phenotype_dataset --phenotype-specs-file=./phenotype_specs.py --output-dataset-file=./ukbb_dataset.csv --output-covariates-columns-file=./ukbb_covariate_columns.json
+
+On top of the CSV of phenotypes, you will also need a CSV file specifying all the relevant genotyping files. This meta file is expected to list all the relevant genotype sources (one per row), having the following headers:
+
+* **name**: A unique identifier of the genotype source (e.g. the name of the chromosome or genomic segment)
+* **format**: The format of the genotype source (currently supporting only *plink* and *bgen*).
+
+Genotype sources of *plink* format are expected to have three additional columns: **bed_file_path**, **bim_file_path** and **fam_file_path** (for the BED, BIM and FAM files, respectively). Likewise, genotype sources of *bgen* format are expected to have the following three columns: **bgen_file_path**, **bgi_file_path** and **sample_file_path** (for the .bgen, .bgen.bgi and .sample files, respectively).
+
+Generating the meta CSV file of the genotype sources for the UK Biobank dataset can be easily achieved with the same ukbb_parser package. For example, the following command would generate the file for the imputated genotypes in BGEN format:
+
+.. code-block:: cshell
+
+    create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
