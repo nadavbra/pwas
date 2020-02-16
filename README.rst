@@ -78,6 +78,7 @@ Generating the meta CSV file of the genotype sources for the UK Biobank dataset 
 Step 2: Determine per-variant effect scores
 -------------------------------------------
 
+
 Step 2.1: List all the unique variants in the input genotyping files
 --------------------------------------------------------------------
 
@@ -88,5 +89,38 @@ For example, to list all the unique imputed variants in the UK Biobank, run:
 .. code-block:: cshell
 
     list_all_variants --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --output-file=./ukbb_imputed_variants.csv --verbose
+
+
+Step 2.2 (optional): Determine the reference allele of each variant
+-------------------------------------------------------------------
+
+In most genetic datasets it is the convention that the first allele listed in each variant is the reference allele and the second is the alternative alleles. However, in some datasets (including the UK Biobank) this convention is sometimes broken. In order to function properly, PWAS needs to know which of the two alleles listed in each variant is the reference allele. If you are not sure whether this convention holds in your dataset, it is recommended that you determine the reference alleles, just to be on the safe side. The ``determine_ref_alleles`` command (provided by PWAS) will compare each variant against the reference genome to validate which of the two variants is the reference allele.
+
+For example, to determine the reference alleles of the imputed UKBB variants, run:
+
+.. code-block:: cshell
+
+    determine_ref_alleles --variants-file=./ukbb_imputed_variants.csv --ref-genome-dir=/path/to/hg19/ --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --override --verbose
+    
+where the --ref-genome-dir option should point to a directory with the sequences of the relevant version of the human reference genome (hg19 in the case of the UKBB). This directory is expected to have one (uncompressed) FASTA file per chromosome (e.g. chr1.fa, chr2.fa, ..., chr22.fa, chrX.fa, chrY.fa, chrM.fa). See the `Obtaining the reference genome files <#obtaining-the-reference-genome-files>`_ section below.
+
+
+Installation
+============
+
+Obtaining the reference genome files
+------------------------------------
+
+The reference genome sequences of all human chromosomes (chrXXX.fa.gz files) can be downloaded from UCSC's FTP site at: 
+
+* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/ (for version hg19)
+* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/ (for version hg38/GRCh38)
+
+The chrXXX.fa.gz files need to be uncompressed to obtain chrXXX.fa files.
+
+IMPORTANT: In version hg19 there's an inconsistency in the reference genome of the M chromosome between UCSC and RegSeq/GENCODE,
+so the file chrM.fa has to be taken from RefSeq (NC_012920.1) instead of UCSC, from: https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?tool=portal&save=file&log$=seqview&db=nuccore&report=fasta&sort=&id=251831106&from=begin&to=end&maxplex=1. In GRCh38 all downloaded files should remain as they are.
+
+
 
 
