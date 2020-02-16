@@ -117,6 +117,25 @@ For example, to calculate the effect scores of UKBB's imputed variants with FIRM
 .. code-block:: cshell
 
     firm_determine_extended_gene_effects_and_scores --variants-csv-file=./ukbb_imputed_variants.csv --output-effects-file=./ukbb_imputation_effects.jsonl --genes-dir=./ --ref-genome=GRCh37 --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --is-allele1-ref-col=is_allele1_ref
+    
+    
+Step 3: Aggregate the per-variant into per-gene effect scores
+-------------------------------------------------------------
+
+
+Step 3.1: Collect the varaint effect scores per gene
+----------------------------------------------------
+
+Having completed step 2, you should now have: i) a CSV file listing all the variants genotyped in your cohort, and ii) a JSON-lines file specifying all the effects of these variants on genes, where each variant-gene effect is assigned a functional score. In order to aggregate the per-variant effect scores into per-gene scores, PWAS first needs the variant effects to be organized per gene. It requires a seperate CSV file per gene listing all the variants affecting that gene. These CSV files should have, on top of all the columns in the original CSV file (that lists all the variants), an additional *effect_score* column with the effect score of each of the variants (with respect to the file's gene).
+
+To generate the per-gene files, simply use the ``organize_variant_effects_per_gene`` command provided by PWAS.
+
+For example, the following will generate the required per-gene CSV files for the imputed variants in the UKBB:
+
+.. code-block:: cshell
+
+    mkdir ./ukbb_imputation_variants_per_gene
+    organize_variant_effects_per_gene --variants-file=./ukbb_imputed_variants.csv --effects-file=./ukbb_imputation_effects.jsonl --gene-variants-dir=./ukbb_imputation_variants_per_gene/
 
 
 Installation
