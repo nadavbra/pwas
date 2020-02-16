@@ -73,3 +73,20 @@ Generating the meta CSV file of the genotype sources for the UK Biobank dataset 
 .. code-block:: cshell
 
     create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
+    
+    
+Step 2: Determine per-variant effect scores
+-------------------------------------------
+
+Step 2.1: List all the unique variants in the input genotyping files
+--------------------------------------------------------------------
+
+To combine all the varaint descriptions across the input genotype sources into a unified list, simply use the ``list_all_variants`` command provided by PWAS.
+
+For example, to list all the unique imputed variants in the UK Biobank, run:
+
+.. code-block:: cshell
+
+    list_all_variants --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --output-file=./ukbb_imputed_variants.csv --verbose
+
+
