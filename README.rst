@@ -136,6 +136,38 @@ For example, the following will generate the required per-gene CSV files for the
 
     mkdir ./ukbb_imputation_variants_per_gene
     organize_variant_effects_per_gene --variants-file=./ukbb_imputed_variants.csv --effects-file=./ukbb_imputation_effects.jsonl --gene-variants-dir=./ukbb_imputation_variants_per_gene/
+    
+    
+Step 3.2: Calculate the gene effect scores
+------------------------------------------
+
+Now here comes PWAS's magic sauce. We are going to aggregate the per-variant effect scores into per-gene (dominant and recessive) effect scores, while taking into account each sample's unique genotype. The relevant PWAS command is ``calc_gene_effect_scores``.
+
+For example, the following command will calculate the gene effect scores for all of the UK Biobank's samples, based on their imputed genotypes:
+
+.. code-block:: cshell
+
+   mkdir ./ukbb_imputation_gene_effect_scores/
+   calc_gene_effect_scores --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --gene-variants-dir=./ukbb_imputation_variants_per_gene/ --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --is-allele1-ref-col=is_allele1_ref
+
+Since this process is computationally intensive (with respect to storage and CPU), it might be a good idea to distribute it across multiple tasks (and potentially sending them to run on a cluster). Luckily for you, this command is already equipped with built-in distribution functionality. For a full explanation on all the different options to distribute the command, please refer to its help message. 
+
+In our example, we can distribute the process into 1,000 tasks and send them to run on a cluster managed by SLURM, by running:
+
+.. code-block:: cshell
+
+   sbatch --array=0-999 --mem=32g -c1 --time=1-0 --wrap="calc_gene_effect_scores --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --gene-variants-dir=./ukbb_imputation_variants_per_gene/ --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --is-allele1-ref-col=is_allele1_ref --task-index-env-variable=SLURM_ARRAY_TASK_ID --total-tasks-env-variable=SLURM_ARRAY_TASK_COUNT"
+   
+Once the jobs have successfully finished, you should have a CSV file per gene, with the effect scores of each sample.
+
+It might be a good idea to validate that you have the correct number of CSV files (i.e. the same as the number of CSV files listing the per-gene variants):
+
+.. code-block:: cshell
+
+   ls -l ./ukbb_imputation_variants_per_gene/ | wc -l
+   ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
+   
+The algorithm that aggregates the variant effect scores into gene effect scores is actually dependent on 5 parameters that the ``calc_gene_effect_scores`` command allows you to specifiy, although the default values are likely a sensible choice. For the full mathematical details of the aggregation algorithm, and the meaning of those parameters, please refer to our paper.
 
 
 Installation
