@@ -105,6 +105,20 @@ For example, to determine the reference alleles of the imputed UKBB variants, ru
 where the --ref-genome-dir option should point to a directory with the sequences of the relevant version of the human reference genome (hg19 in the case of the UKBB). This directory is expected to have one (uncompressed) FASTA file per chromosome (e.g. chr1.fa, chr2.fa, ..., chr22.fa, chrX.fa, chrY.fa, chrM.fa). See the `Obtaining the reference genome files <#obtaining-the-reference-genome-files>`_ section below.
 
 
+Step 2.3: Calculate the effect score of each variant
+----------------------------------------------------
+
+A crucial step in determining the functional status of genes is to first determine the predicted functional effects of individual variants. PWAS requires that each variant will be assigned an effect score between 0 (indicating complete loss of function of the gene) to 1 (indicating no effect). PWAS has been designed and tested to work with `FIRM <https://github.com/nadavbra/firm>`_, a machine-learning framework for predicting the functional impact of variants affecting protein sequences at the molecular-level. However, PWAS is completely generic and could, in principle, work with any variant assessment tool (e.g. `CADD <https://cadd.gs.washington.edu/>`_). In fact, since all of PWAS's calculations are derived from the per-variant effect scores, and it's actually agnostic to their interpretation, you can even assign scores to non-coding genes or use scores that capture other biological properties of mutations (even though PWAS was originally designed for discovering proteomic associations).
+
+Whatever tool you end up using, you will need to produce a `JSON-lines <http://jsonlines.org/>`_ file. Each row in the file is expected to describe the effects of the variants in the corresponding row in the variants CSV file (in particular, the two files are expected to have the same number of lines, except the headers line that is only expected in the CSV file, but not in the JSON-lines file). Each row in the file is expected to be a JSON-formatted dictionary, mapping each gene index (a running integer index arbitrarily assigned to each gene) into the variant's list of effects on the gene, each is a pair of i) effect description (string) and ii) effect score (float, between 0 to 1).
+
+For example, to calculate the effect scores of UKBB's imputed variants with FIRM (following its installation), run:
+
+.. code-block:: cshell
+
+    firm_determine_extended_gene_effects_and_scores --variants-csv-file=./ukbb_imputed_variants.csv --output-effects-file=./ukbb_imputation_effects.jsonl --genes-dir=./ --ref-genome=GRCh37 --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --is-allele1-ref-col=is_allele1_ref
+
+
 Installation
 ============
 
