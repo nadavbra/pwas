@@ -35,6 +35,7 @@ Clone the project and run:
 
 .. code-block:: cshell
 
+   git submodule update --init
    python3 setup.py install
 
 
