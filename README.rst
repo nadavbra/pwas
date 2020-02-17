@@ -14,7 +14,11 @@ Dependencies
 
 PWAS requires Python 3.
 
-Upon installation it will automatically add the following Python packages:
+Depending on the format of your genetic data, you will have to manually install a relevant Python parser before using PWAS. If you use the PLINK/BED format, you will have to install the `pandas-plink <https://pypi.org/project/pandas-plink/>`_ Python package. If you use the BGEN format, install `bgen_parser <https://github.com/nadavbra/bgen_parser>`_.
+
+Part of PWAS's pipeline also requires other tools (see details below). Specifically, step 2.3 requires a variant assessment tool such as  `FIRM <https://github.com/nadavbra/firm>`_.
+
+Upon installation, PWAS will automatically add the following Python packages:
 
 * numpy
 * scipy
@@ -22,8 +26,6 @@ Upon installation it will automatically add the following Python packages:
 * matplotlib
 * biopython
 * statsmodels
-
-Part of PWAS's pipeline also requires other tools (see details below). Specifically, step 2.3 requires a variant assessment tool such as  `FIRM <https://github.com/nadavbra/firm>`_.
 
 
 Install PWAS
@@ -119,6 +121,8 @@ Generating the meta CSV file of the genotype sources for the UK Biobank dataset 
 .. code-block:: cshell
 
     create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
+    
+ **Very important note**: There's actually a good reason to choosing the UK Biobank's imputed genotypes over their raw markers. Unlike vanilla GWAS and other gene-based method (e.g. SKAT), for which it's sufficient to have some sampling of the variants in each Linkage Disequilibrium block, PWAS actually requires full knowledge of all the variants present in each sample. The underlying reason is that PWAS actually tries to figure out what happenes to the genes (from functional perspective), and missing variants (with functional relevance) are likely to diminish its statistical power to uncover true associations. For this reason, PWAS is expected to work best with complete, unbiased genotyping (e.g. provided by whole-exome sequencing). If your genetic data was collected by SNP-array genotypes, then you will at least have to try to complete the misssing variants through imputation.  
     
     
 Step 2: Determine per-variant effect scores
