@@ -153,7 +153,7 @@ For example, to determine the reference alleles of the imputed UKBB variants, ru
 
     determine_ref_alleles --variants-file=./ukbb_imputed_variants.csv --ref-genome-dir=/path/to/hg19/ --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --override --verbose
     
-where the --ref-genome-dir option should point to a directory with the sequences of the relevant version of the human reference genome (hg19 in the case of the UKBB). This directory is expected to have one (uncompressed) FASTA file per chromosome (e.g. chr1.fa, chr2.fa, ..., chr22.fa, chrX.fa, chrY.fa, chrM.fa). See the `Obtaining the reference genome files <#obtaining-the-reference-genome-files>`_ section below.
+where the --ref-genome-dir option should point to a directory with the sequences of the relevant version of the human reference genome (hg19 in the case of the UKBB). This directory is expected to have one (uncompressed) FASTA file per chromosome (e.g. chr1.fa, chr2.fa, ..., chr22.fa, chrX.fa, chrY.fa, chrM.fa). See the `Obtaining the reference genome files <#obtaining-the-reference-genome-files>`_ section above.
 
 
 Step 2.3: Calculate the effect score of each variant
