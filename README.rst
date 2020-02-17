@@ -6,6 +6,52 @@ Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method f
 For more details read our manuscript: Nadav Brandes, Nathan Linial, Michal Linial, PWAS: Proteome-Wide Association Study, bioRxiv, https://doi.org/10.1101/812289
 
 
+Installation
+============
+
+Dependencies
+------------
+
+PWAS requires Python 3.
+
+Upon installation it will automatically add the following Python packages:
+
+* numpy
+* scipy
+* pandas
+* matplotlib
+* biopython
+* statsmodels
+
+Part of PWAS's pipeline also requires other tools (see details below). Specifically, step 2.3 requires a variant assessment tool such as  `FIRM <https://github.com/nadavbra/firm>`_.
+
+
+Install PWAS
+------------
+
+Clone the project and run:
+
+.. code-block:: cshell
+
+   python3 setup.py install
+
+
+Obtaining the reference genome files
+------------------------------------
+
+If you need to determine the reference allele of each variant (step 2.2 described below), you will need to download the relevant version of the reference genome. Note that if you use FIRM you will have to download these files anyway. 
+
+The reference genome sequences of all human chromosomes (chrXXX.fa.gz files) can be downloaded from UCSC's FTP site at: 
+
+* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/ (for version hg19)
+* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/ (for version hg38/GRCh38)
+
+The chrXXX.fa.gz files need to be uncompressed to obtain chrXXX.fa files.
+
+IMPORTANT: In version hg19 there's an inconsistency in the reference genome of the M chromosome between UCSC and RegSeq/GENCODE,
+so the file chrM.fa has to be taken from RefSeq (NC_012920.1) instead of UCSC, from: https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?tool=portal&save=file&log$=seqview&db=nuccore&report=fasta&sort=&id=251831106&from=begin&to=end&maxplex=1. In GRCh38 all downloaded files should remain as they are.
+
+
 Usage
 =====
 
@@ -279,24 +325,3 @@ And combine the results to get the final summary statistics file:
 .. code-block:: cshell
    
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
-
-
-Installation
-============
-
-Obtaining the reference genome files
-------------------------------------
-
-The reference genome sequences of all human chromosomes (chrXXX.fa.gz files) can be downloaded from UCSC's FTP site at: 
-
-* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/ (for version hg19)
-* ftp://hgdownload.cse.ucsc.edu/goldenPath/hg38/chromosomes/ (for version hg38/GRCh38)
-
-The chrXXX.fa.gz files need to be uncompressed to obtain chrXXX.fa files.
-
-IMPORTANT: In version hg19 there's an inconsistency in the reference genome of the M chromosome between UCSC and RegSeq/GENCODE,
-so the file chrM.fa has to be taken from RefSeq (NC_012920.1) instead of UCSC, from: https://www.ncbi.nlm.nih.gov/sviewer/viewer.cgi?tool=portal&save=file&log$=seqview&db=nuccore&report=fasta&sort=&id=251831106&from=begin&to=end&maxplex=1. In GRCh38 all downloaded files should remain as they are.
-
-
-
-
