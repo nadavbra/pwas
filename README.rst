@@ -31,7 +31,15 @@ Upon installation, PWAS will automatically add the following Python packages:
 Install PWAS
 ------------
 
-Clone the project and run:
+Simply run:
+
+.. code-block:: cshell
+
+   pip install pwas
+   
+**Important**: Make sure that the ``pip`` command refers to Python 3. If you are uncertain, consider using ``pip3`` instead.
+
+Alternatively, to install PWAS directly from this GitHub repository, clone the project into a local directory and run from it:
 
 .. code-block:: cshell
 
