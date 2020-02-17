@@ -38,9 +38,9 @@ Running PWAS consists of the following steps:
    
    3.2. Combine the variant effect scores with per-sample genotypes to obtain gene effect scores across the cohort's samples
 
-4. **Run the association tests**, which consists of:
+4. **Find gene-phenotype associations**, which consists of:
 
-   4.1. Run the statistical associations tests (between a selected phenotype to the calculated gene effect scores)
+   4.1. Run association tests (between a selected phenotype to the calculated gene effect scores)
    
    4.2. Collect the results and perform multiple-hypothesis testing correction
    
@@ -168,6 +168,38 @@ It might be a good idea to validate that you have the correct number of CSV file
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
    
 The algorithm that aggregates the variant effect scores into gene effect scores is actually dependent on 5 parameters that the ``calc_gene_effect_scores`` command allows you to specifiy, although the default values are likely a sensible choice. For the full mathematical details of the aggregation algorithm, and the meaning of those parameters, please refer to our paper.
+
+
+Step 4: Find gene-phenotype associations
+----------------------------------------
+
+
+Step 4.1: Run association tests
+--------------------------------
+
+Having gone through step 1, you should have a CSV file with phenotypes and covariates, and having completed step 3 you shoud also have per-gene CSV files with the gene effect scores. The last step of PWAS is to simply look for statistical correlations between the phenotypes to the gene scores, in order to uncover gene-phenotype associations (with resepct to the functional variability captured by the pre-calculated gene effect scores, which, in the default case where FIRM has been used as the variant assessment tool, reflect the estimated fucntions of the proteins coded by those genes). In fact, this step consists of nothing more than routine statistical methods (linear and logistic regression), and you could, in principle, use any statistics software of your choice (e.g. PLINK, R, etc.). Still, PWAS comes with its own built-in implementation which also provides, on top p-values, some additional unique metrics. Unless you feel very confident that you know what you are doing, it is recommended that you just use the implementation of PWAS, as provided by the ``pwas_test_genes`` command.
+
+To continue our ongoing UKBB example, let's say we want to find PWAS associations for type-II diabetes. Then simply run:
+
+.. code-block:: cshell
+
+   mkdir ./ukbb_imputation_per_gene_type2_diabetes_pwas_results
+   pwas_test_genes --dataset-file=./ukbb_dataset.csv --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --sample-id-col=eid --phenotype-col="Type 2 diabetes" --covariate-cols-json-file=./ukbb_covariate_columns.json
+   
+This process will go through each gene in ``./ukbb_imputation_gene_effect_scores/`` and run a logistic regression test of the "Type 2 diabetes" column in ``./ukbb_dataset.csv`` against the gene's effect scores (while also taking into account the covariates in the columns specified by ``./ukbb_covariate_columns.json``). It will save the resulted summary statistics of each gene as a separate CSV file in ``./ukbb_imputation_per_gene_type2_diabetes_pwas_results/``.
+
+This process too can be computationally intenstive (in terms of CPU time), especially for large datasets (with many samples and covariates) such as the UKBB. Fortunately, the ``pwas_test_genes`` command comes with a built-in functionality that allows one to distribute it across many computing resources. For full details on that, please refer to its help message. As an example, if you want to distribute the process across 1,000 tasks and send them to run on a cluster managed by SLURM, simply run:
+
+.. code-block:: cshell
+
+   sbatch --array=0-999 --mem=32g -c1 --time=1-0 --wrap="pwas_test_genes --dataset-file=./ukbb_dataset.csv --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --sample-id-col=eid --phenotype-col='Type 2 diabetes' --covariate-cols-json-file=./ukbb_covariate_columns.json --task-index-env-variable=SLURM_ARRAY_TASK_ID --total-tasks-env-variable=SLURM_ARRAY_TASK_COUNT"
+   
+Here too, once everything is done and over with, it will be a good idea to validate that you've got the right number of files. These two command are expected to give you the same number:
+   
+.. code-block:: cshell
+
+   ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
+   ls -l ./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ | wc -l
 
 
 Installation
