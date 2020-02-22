@@ -338,3 +338,9 @@ And combine the results to get the final summary statistics file:
 .. code-block:: cshell
    
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
+   
+   
+Cite us
+=======
+
+If you use PWAS as part of work contributing to a scientific publication, we ask that you cite our preprint: Nadav Brandes, Nathan Linial, Michal Linial, PWAS: Proteome-Wide Association Study, bioRxiv, https://doi.org/10.1101/812289
