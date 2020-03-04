@@ -21,9 +21,9 @@ if __name__ == '__main__':
             'per-gene CSV files.')
     parser.add_argument('--effects-file', dest = 'effects_file', metavar = '/path/to/variant_effects.jsonl', \
             type = get_parser_file_type(parser, must_exist = True), required = True, help = 'The gene effects determined per variant, ' + \
-            'provided in JSON-lines format. Each row in the file is expected to descrive the effects of the variants in the corresponding ' + \
+            'provided in JSON-lines format. Each row in the file is expected to describe the effects of the variants in the corresponding ' + \
             'row in the variants CSV file (in particular, the two files are expected to have the same number of lines, except the headers ' + \
-            'line that is only expected in the CSV file, but no the JSON-lines file). Each row in the file is expected to be a JSON-formatted ' + \
+            'line that is only expected in the CSV file, but not in the JSON-lines file). Each row in the file is expected to be a JSON-formatted ' + \
             'dictionary, mapping each gene index (a running integer index arbitrarily assigned to each gene) into the variant\'s list of ' + \
             'effects on the gene, each is a pair of i) effect description (string) and ii) effect score (float, between 0 to 1). The output of ' + \
             'this process will be a CSV file per gene, named after the provided gene index. Within this CSV file, each unique variant ' + \
