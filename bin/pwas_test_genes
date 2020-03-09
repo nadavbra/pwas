@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import sys
 import os
 import re
 import json
@@ -10,7 +11,11 @@ import pandas as pd
 
 from pwas.statistics import GeneTest, BinaryTraitGeneScoreTest, ContinuousTraitGeneScoreTest
 from pwas.shared_utils.util import log, get_recognized_files_in_dir, get_chunk_slice, get_parser_file_type, get_parser_directory_type, \
-        add_parser_task_arguments, determine_parser_task_details, is_binary_series
+        add_parser_task_arguments, determine_parser_task_details, normalize, is_binary_series, find_linearly_independent_columns, \
+        resolve_quasi_complete_separation_by_removing_binary_columns
+        
+MIN_SAMPLES_COVARIATES_DIFF_ERROR = 3
+MIN_SAMPLES_COVARIATES_RATIO_WARNING = 2
         
 def determine_covariate_cols(args):
 
@@ -27,6 +32,67 @@ def determine_covariate_cols(args):
         
     return list(sorted(covariate_cols))
     
+def determine_score_test_class(phenotype_values):
+    if is_binary_series(phenotype_values):
+        log('The phenotype (%s) was determined to be binary (%d cases).' % (args.phenotype_col, phenotype_values.sum()))
+        return BinaryTraitGeneScoreTest
+    else:
+        log('The phenotype (%s) was determined to be continuous.' % args.phenotype_col)
+        return ContinuousTraitGeneScoreTest
+    
+def validate_n_samples(phenotype_values, n_covariates):
+    
+    if is_binary_series(phenotype_values):
+        
+        n_controls = (phenotype_values == 0).sum()
+        n_cases = (phenotype_values == 1).sum()
+        log('%d cases and %d controls.' % (n_cases, n_controls))
+        
+        if n_cases <= n_controls:
+            n_effective_samples = n_cases
+            effective_samples_name = 'cases'
+        else:
+            n_effective_samples = n_controls
+            effective_samples_name = 'controls'
+    else:
+        n_effective_samples = len(phenotype_values)
+        effective_samples_name = 'samples'
+
+    if n_effective_samples < n_covariates + MIN_SAMPLES_COVARIATES_DIFF_ERROR:
+        log('Error: the number of %s is too small (%d) given the number of covariates (%d) to hope for any significant results.' % \
+                (effective_samples_name, n_effective_samples, n_covariates))
+        sys.exit(1)
+    elif n_effective_samples < n_covariates * MIN_SAMPLES_COVARIATES_RATIO_WARNING:
+        log(('Warning: the number of %s is pretty small (%d) given the number of covariates (%d), meaning it would be very difficult to obtain ' + \
+                'significant results.') % (effective_samples_name, n_effective_samples, n_covariates))
+                
+def handle_covariate_separation(phenotype_values, covariates, remove_multicollinear_covariates, resolve_quasi_complete_covariate_separation):
+    
+    linearly_independent_covariate_column_indices = find_linearly_independent_columns(covariates.values)
+    
+    if list(linearly_independent_covariate_column_indices) != list(range(len(covariates.columns))):
+        if remove_multicollinear_covariates:
+            log('The %d provided covariates are multicollinear. Will retain only %d of them.' % (len(covariates), \
+                    len(linearly_independent_covariate_column_indices)))
+            covariates = covariates.iloc[:, linearly_independent_covariate_column_indices]
+        else:
+            log(('Error: the %d provided covariates are multicollinear. Either provide only a subset of these covariates that are linearly ' + \
+                    'independent, or use the flag --remove-multicollinear-covariates.') % len(covariates))
+            sys.exit(1)
+            
+    covariates, phenotype_values, _, removed_covariate_columns, _ = resolve_quasi_complete_separation_by_removing_binary_columns(covariates, \
+            phenotype_values)
+            
+    if len(removed_covariate_columns) > 0:
+        if resolve_quasi_complete_covariate_separation:
+            log('Remained with %d covariates and %d samples.' % covariates.shape[::-1])
+        else:
+            log(('Error: the %d covariates introduce quasi-complete separation with resepct to the phenotype. To allow automatic resolving ' + \
+                    'of this issue (as detailed above), you must use the flag --resolve-quasi-complete-covariate-separation.') % len(covariates))
+            sys.exit(1)
+            
+    return phenotype_values, covariates
+        
 def get_gene_effect_score_files(gene_effect_scores_dir):
 
     GENE_FILE_NAME_PATTERN = re.compile(r'^(\d+)\.csv$')
@@ -60,9 +126,15 @@ if __name__ == '__main__':
     parser.add_argument('--covariate-cols-json-file', dest = 'covariate_cols_json_file', metavar = '/path/to/covariate_columns.json', \
             type = get_parser_file_type(parser, must_exist = True), default = None, help = 'An optional JSON file with a list of column names to ' + \
             'consider as covariates. If both --covariate-cols and --covariate-cols-json-file are provided, will take the union of the provided column names.')
+    parser.add_argument('--remove-multicollinear-covariates', dest = 'remove_multicollinear_covariates', action = 'store_true', help = 'If the provided ' + \
+            'covariates are multicollinear, this will automatically remove some of them to retain independence of the remaining ones.')
+    parser.add_argument('--resolve-quasi-complete-covariate-separation', dest = 'resolve_quasi_complete_covariate_separation', action = 'store_true', \
+            help = 'If the phenotype is binary and quasi-complete separates the covariates (i.e. if the covariates are multicollinear among cases), ' + \
+            'this will automatically remove binary covariates (and their associated samples) to resolve this. For details, see the help of the ' + \
+            'function shared_utils.util.resolve_quasi_complete_separation_by_removing_binary_columns.')
     add_parser_task_arguments(parser)
     args = parser.parse_args()
-        
+            
     task_index, total_tasks = determine_parser_task_details(args)
     covariate_cols = determine_covariate_cols(args)
         
@@ -73,14 +145,12 @@ if __name__ == '__main__':
     
     phenotype_values = dataset[args.phenotype_col]
     covariates = dataset[covariate_cols]
-        
-    if is_binary_series(phenotype_values):
-        log('The phenotype (%s) was determined to be binary (%d cases).' % (args.phenotype_col, phenotype_values.sum()))
-        score_test_class = BinaryTraitGeneScoreTest
-    else:
-        log('The phenotype (%s) was determined to be continuous.' % args.phenotype_col)
-        score_test_class = ContinuousTraitGeneScoreTest
-        
+    score_test_class = determine_score_test_class(phenotype_values)
+    phenotype_values, covariates = handle_covariate_separation(phenotype_values, covariates, args.remove_multicollinear_covariates, \
+            args.resolve_quasi_complete_covariate_separation)
+    covariates = covariates.apply(normalize)
+    validate_n_samples(phenotype_values, len(covariates.columns))
+    
     if total_tasks != 1:
         log('Running task %d/%d.' % (task_index, total_tasks))
         
@@ -93,14 +163,14 @@ if __name__ == '__main__':
     
         gene_effect_scores = pd.read_csv(os.path.join(args.gene_effect_scores_dir, gene_effect_score_file_name))
         gene_sample_ids = set(gene_effect_scores['sample_id'])
-        gene_relevant_sample_ids = np.array([sample_id for sample_id in dataset.index if sample_id in gene_sample_ids])
+        gene_relevant_sample_ids = np.array([sample_id for sample_id in phenotype_values.index if sample_id in gene_sample_ids])
         log('Analyzing gene %d/%d (#%d; %d of %d samples are in the dataset)...' % (i, gene_end - gene_start, gene_index, \
-                len(gene_relevant_sample_ids), len(gene_sample_ids)))
+                len(gene_relevant_sample_ids), len(phenotype_values)))
                 
         gene_relevant_phenotype_values = phenotype_values.loc[gene_relevant_sample_ids]
         gene_relevant_covariates = covariates.loc[gene_relevant_sample_ids]
         gene_relevant_effect_scores = gene_effect_scores.set_index('sample_id').loc[gene_relevant_sample_ids]
-        
+                
         gene_results = GeneTest(gene_relevant_phenotype_values, gene_relevant_covariates, gene_relevant_effect_scores['dominant'], \
                 gene_relevant_effect_scores['recessive'], score_test_class).run()
         gene_results.to_csv(os.path.join(args.per_gene_pwas_results_dir, '%d.csv' % gene_index), header = False)

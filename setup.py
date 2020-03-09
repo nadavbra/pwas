@@ -6,7 +6,7 @@ def readme():
 
 setup(
     name = 'pwas',
-    version = '1.0.1',
+    version = '1.0.2',
     description = 'Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies.',
     long_description = readme(),
     url = 'https://github.com/nadavbra/pwas',

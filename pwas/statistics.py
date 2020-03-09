@@ -55,7 +55,14 @@ class GeneTest(object):
             
             with pd.option_context('mode.chained_assignment', None):
                 self.variables['gene_dominant_score'] = normalize(self.dominant_scores)
-                self.variables['gene_recessive_scores'] = normalize(self.recessive_scores)
+                self.variables['gene_recessive_score'] = normalize(self.recessive_scores)
+                
+            if np.linalg.matrix_rank(sm.add_constant(self.variables[['gene_dominant_score', 'gene_recessive_score']])) <= 2:
+                log('Dominant and recessive scores are linearly dependent. Will retain only the dominant scores.')
+                del self.variables['gene_dominant_score'], self.variables['gene_recessive_score']
+                score_test = self.score_test_class(self.phenotype_values, self.dominant_scores, self.variables)
+                score_test.run()
+                return score_test.pval
             
             combined_model = self.score_test_class.MODEL_CLASS(self.phenotype_values, self.variables)
             
@@ -66,14 +73,14 @@ class GeneTest(object):
                 if not hasattr(combined_model_results, 'mle_retvals') or combined_model_results.mle_retvals['converged']:
                     contrast_mask = pd.DataFrame(0, index = [0, 1], columns = self.variables.columns)
                     contrast_mask.loc[0, 'gene_dominant_score'] = 1
-                    contrast_mask.loc[1, 'gene_recessive_scores'] = 1
+                    contrast_mask.loc[1, 'gene_recessive_score'] = 1
                     return combined_model_results.f_test(contrast_mask).pvalue
                 else:
                     log('Logistic regression model failed to converge.')
             except np.linalg.LinAlgError:
                 log('Failed fitting the model due to (probably) singular matrix.')
             finally:
-                del self.variables['gene_dominant_score'], self.variables['gene_recessive_scores']
+                del self.variables['gene_dominant_score'], self.variables['gene_recessive_score']
     
         return np.nan
     
