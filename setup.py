@@ -9,6 +9,7 @@ setup(
     version = '1.0.2',
     description = 'Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies.',
     long_description = readme(),
+    long_description_content_type = 'text/x-rst',
     url = 'https://github.com/nadavbra/pwas',
     author = 'Nadav Brandes',
     author_email  ='nadav.brandes@mail.huji.ac.il',

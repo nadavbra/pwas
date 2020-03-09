@@ -33,7 +33,7 @@ Install PWAS
 
 Simply run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    pip install pwas
    
@@ -41,7 +41,7 @@ Simply run:
 
 Alternatively, to install PWAS directly from this GitHub repository, clone the project into a local directory and run from it:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    git submodule update --init
    python3 setup.py install
@@ -113,7 +113,7 @@ If you work with the `UK Biobank <https://www.ukbiobank.ac.uk/>`_, you can use t
 
 For example, the following command will create a suitable dataset with 49 prominent phenotypes (both binary/categorical and continuous) and 173 covariates extracted from the UK Biobank (assuming that you have access to the relevant UKBB fields).
 
-.. code-block:: cshell
+.. code-block:: sh
 
     wget https://raw.githubusercontent.com/nadavbra/ukbb_parser/master/examples/phenotype_specs.py
     create_ukbb_phenotype_dataset --phenotype-specs-file=./phenotype_specs.py --output-dataset-file=./ukbb_dataset.csv --output-covariates-columns-file=./ukbb_covariate_columns.json
@@ -127,7 +127,7 @@ Genotype sources of *plink* format are expected to have three additional columns
 
 Generating the meta CSV file of the genotype sources for the UK Biobank dataset can be easily achieved with the same ukbb_parser package. For example, the following command would generate the file for the imputated genotypes in BGEN format:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
     
@@ -145,7 +145,7 @@ To combine all the varaint descriptions across the input genotype sources into a
 
 For example, to list all the unique imputed variants in the UK Biobank, run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     list_all_variants --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --output-file=./ukbb_imputed_variants.csv --verbose
 
@@ -157,7 +157,7 @@ In most genetic datasets it is the convention that the first allele listed in ea
 
 For example, to determine the reference alleles of the imputed UKBB variants, run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     determine_ref_alleles --variants-file=./ukbb_imputed_variants.csv --ref-genome-dir=/path/to/hg19/ --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --override --verbose
     
@@ -173,7 +173,7 @@ Whatever tool you end up using, you will need to produce a `JSON-lines <http://j
 
 For example, to calculate the effect scores of UKBB's imputed variants with FIRM (following its installation), run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     firm_determine_extended_gene_effects_and_scores --variants-csv-file=./ukbb_imputed_variants.csv --output-effects-file=./ukbb_imputation_effects.jsonl --genes-dir=./ --ref-genome=GRCh37 --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --is-allele1-ref-col=is_allele1_ref
     
@@ -191,7 +191,7 @@ To generate the per-gene files, simply use the ``organize_variant_effects_per_ge
 
 For example, the following will generate the required per-gene CSV files for the imputed variants in the UKBB:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     mkdir ./ukbb_imputation_variants_per_gene
     organize_variant_effects_per_gene --variants-file=./ukbb_imputed_variants.csv --effects-file=./ukbb_imputation_effects.jsonl --gene-variants-dir=./ukbb_imputation_variants_per_gene/
@@ -204,7 +204,7 @@ Now here comes PWAS's magic sauce. We are going to aggregate the per-variant eff
 
 For example, the following command will calculate the gene effect scores for all of the UK Biobank's samples, based on their imputed genotypes:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    mkdir ./ukbb_imputation_gene_effect_scores/
    calc_gene_effect_scores --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --gene-variants-dir=./ukbb_imputation_variants_per_gene/ --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --is-allele1-ref-col=is_allele1_ref
@@ -213,7 +213,7 @@ Since this process is computationally intensive (with respect to storage and CPU
 
 In our example, we can distribute the process into 1,000 tasks and send them to run on a cluster managed by SLURM, by running:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    sbatch --array=0-999 --mem=32g -c1 --time=1-0 --wrap="calc_gene_effect_scores --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --gene-variants-dir=./ukbb_imputation_variants_per_gene/ --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --is-allele1-ref-col=is_allele1_ref --task-index-env-variable=SLURM_ARRAY_TASK_ID --total-tasks-env-variable=SLURM_ARRAY_TASK_COUNT"
    
@@ -221,7 +221,7 @@ Once the jobs have successfully finished, you should have a CSV file per gene, w
 
 It might be a good idea to validate that you have the correct number of CSV files (i.e. the same as the number of CSV files listing the per-gene variants):
 
-.. code-block:: cshell
+.. code-block:: sh
 
    ls -l ./ukbb_imputation_variants_per_gene/ | wc -l
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
@@ -240,7 +240,7 @@ Having gone through step 1, you should have a CSV file with phenotypes and covar
 
 To continue our ongoing UKBB example, let's say we want to find PWAS associations for type-II diabetes. Then simply run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    mkdir ./ukbb_imputation_per_gene_type2_diabetes_pwas_results
    pwas_test_genes --dataset-file=./ukbb_dataset.csv --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --sample-id-col=eid --phenotype-col="Type 2 diabetes" --covariate-cols-json-file=./ukbb_covariate_columns.json
@@ -249,13 +249,13 @@ This process will go through each gene in ``./ukbb_imputation_gene_effect_scores
 
 This process too can be computationally intenstive (in terms of CPU time), especially for large datasets (with many samples and covariates) such as the UKBB. Fortunately, the ``pwas_test_genes`` command comes with a built-in functionality that allows one to distribute it across many computing resources. For full details on that, please refer to its help message. As an example, if you want to distribute the process across 1,000 tasks and send them to run on a cluster managed by SLURM, simply run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    sbatch --array=0-999 --mem=32g -c1 --time=1-0 --wrap="pwas_test_genes --dataset-file=./ukbb_dataset.csv --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --sample-id-col=eid --phenotype-col='Type 2 diabetes' --covariate-cols-json-file=./ukbb_covariate_columns.json --task-index-env-variable=SLURM_ARRAY_TASK_ID --total-tasks-env-variable=SLURM_ARRAY_TASK_COUNT"
    
 Here too, once everything is done and over with, it will be a good idea to validate that you've got the right number of files. These two command are expected to give you the same number:
    
-.. code-block:: cshell
+.. code-block:: sh
 
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
    ls -l ./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ | wc -l
@@ -268,7 +268,7 @@ To collect the summary statistics calculated in the previous step (which are cur
 
 In our ongoing example, just run:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
    
@@ -284,7 +284,7 @@ For quicker future reference, here's the complete pipeline for running PWAS for 
 
 First, to generate the necessary phenotype & genotype files from the UKBB dataset, use the ``ukbb_parser`` package:
 
-.. code-block:: cshell
+.. code-block:: sh
 
     wget https://raw.githubusercontent.com/nadavbra/ukbb_parser/master/examples/phenotype_specs.py
     create_ukbb_phenotype_dataset --phenotype-specs-file=./phenotype_specs.py --output-dataset-file=./ukbb_dataset.csv --output-covariates-columns-file=./ukbb_covariate_columns.json
@@ -292,20 +292,20 @@ First, to generate the necessary phenotype & genotype files from the UKBB datase
    
 Second, you will have to list all the dataset's variants and determine the reference allele of each variant:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    list_all_variants --genotyping-spec-file=./ukbb_imputation_genotyping_spec.csv --output-file=./ukbb_imputed_variants.csv --verbose
    determine_ref_alleles --variants-file=./ukbb_imputed_variants.csv --ref-genome-dir=/path/to/hg19/ --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --override --verbose
    
 And then calculate the variant effect scores (here using FIRM):
 
-.. code-block:: cshell
+.. code-block:: sh
 
    firm_determine_extended_gene_effects_and_scores --variants-csv-file=./ukbb_imputed_variants.csv --output-effects-file=./ukbb_imputation_effects.jsonl --genes-dir=./ --ref-genome=GRCh37 --chrom-col=chromosome --pos-col=position --allele1-col=allele1 --allele2-col=allele2 --is-allele1-ref-col=is_allele1_ref
    
 Next, you will need to organize the variant effect scores per gene and aggregate them into gene effect scores (distributing that process on a cluster to speed things up):
 
-.. code-block:: cshell
+.. code-block:: sh
 
    mkdir ./ukbb_imputation_variants_per_gene
    organize_variant_effects_per_gene --variants-file=./ukbb_imputed_variants.csv --effects-file=./ukbb_imputation_effects.jsonl --gene-variants-dir=./ukbb_imputation_variants_per_gene/
@@ -314,28 +314,28 @@ Next, you will need to organize the variant effect scores per gene and aggregate
    
 And validate that you got the correct number of files:
 
-.. code-block:: cshell
+.. code-block:: sh
 
    ls -l ./ukbb_imputation_variants_per_gene/ | wc -l
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
    
 Lastly, run the actual association tests (again using a cluster):
 
-.. code-block:: cshell
+.. code-block:: sh
 
    mkdir ./ukbb_imputation_per_gene_type2_diabetes_pwas_results
    sbatch --array=0-999 --mem=32g -c1 --time=1-0 --wrap="pwas_test_genes --dataset-file=./ukbb_dataset.csv --gene-effect-scores-dir=./ukbb_imputation_gene_effect_scores/ --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --sample-id-col=eid --phenotype-col='Type 2 diabetes' --covariate-cols-json-file=./ukbb_covariate_columns.json --task-index-env-variable=SLURM_ARRAY_TASK_ID --total-tasks-env-variable=SLURM_ARRAY_TASK_COUNT"
    
 Validate that you've got all the files:
 
-.. code-block:: cshell
+.. code-block:: sh
    
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
    ls -l ./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ | wc -l
     
 And combine the results to get the final summary statistics file:
 
-.. code-block:: cshell
+.. code-block:: sh
    
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
    
