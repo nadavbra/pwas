@@ -14,8 +14,7 @@ from pwas.shared_utils.util import log, get_recognized_files_in_dir, get_chunk_s
         add_parser_task_arguments, determine_parser_task_details, normalize, is_binary_series, find_linearly_independent_columns, \
         resolve_quasi_complete_separation_by_removing_binary_columns
         
-MIN_SAMPLES_COVARIATES_DIFF_ERROR = 3
-MIN_SAMPLES_COVARIATES_RATIO_WARNING = 2
+MIN_SAMPLES_COVARIATES_RATIO_WARNING = 10
         
 def determine_covariate_cols(args):
 
@@ -58,13 +57,9 @@ def validate_n_samples(phenotype_values, n_covariates):
         n_effective_samples = len(phenotype_values)
         effective_samples_name = 'samples'
 
-    if n_effective_samples < n_covariates + MIN_SAMPLES_COVARIATES_DIFF_ERROR:
-        log('Error: the number of %s is too small (%d) given the number of covariates (%d) to hope for any significant results.' % \
-                (effective_samples_name, n_effective_samples, n_covariates))
-        sys.exit(1)
-    elif n_effective_samples < n_covariates * MIN_SAMPLES_COVARIATES_RATIO_WARNING:
-        log(('Warning: the number of %s is pretty small (%d) given the number of covariates (%d), meaning it would be very difficult to obtain ' + \
-                'significant results.') % (effective_samples_name, n_effective_samples, n_covariates))
+    if n_effective_samples < n_covariates * MIN_SAMPLES_COVARIATES_RATIO_WARNING:
+        log('Warning: the number of %s (%d) is small given the number of covariates (%d).' % (effective_samples_name, n_effective_samples, \
+                n_covariates))
                 
 def handle_covariate_separation(phenotype_values, covariates, remove_multicollinear_covariates, resolve_quasi_complete_covariate_separation):
     
