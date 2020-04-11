@@ -29,7 +29,7 @@ if __name__ == '__main__':
         gene_results_file_path = os.path.join(args.per_gene_pwas_results_dir, '%d.csv' % gene_index)
         
         if os.path.exists(gene_results_file_path):
-            per_gene_results.append(pd.read_csv(gene_results_file_path, index_col = 0, squeeze = True).rename(gene_index))
+            per_gene_results.append(pd.read_csv(gene_results_file_path, header = None, index_col = 0, squeeze = True).rename(gene_index))
             
     per_gene_results = pd.DataFrame(per_gene_results)
     print('Collected PWAS results for %d of %d genes.' % (len(per_gene_results), len(genes)))
