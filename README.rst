@@ -342,7 +342,7 @@ And combine the results to get the final summary statistics file:
 
 Licene
 =======
-PWAS is a free open source project available under the MIT license.
+PWAS is a free open source project available under the `MIT License <https://en.wikipedia.org/wiki/MIT_License>`_.
  
    
 Cite us
