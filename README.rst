@@ -338,7 +338,12 @@ And combine the results to get the final summary statistics file:
 .. code-block:: sh
    
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
-   
+ 
+
+Licene
+=======
+PWAS is a free open source project available under the MIT license.
+ 
    
 Cite us
 =======
