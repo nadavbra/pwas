@@ -348,4 +348,4 @@ PWAS is a free open source project available under the `MIT License <https://en.
 Cite us
 =======
 
-If you use PWAS as part of work contributing to a scientific publication, we ask that you cite our preprint: Nadav Brandes, Nathan Linial, Michal Linial, PWAS: Proteome-Wide Association Study, bioRxiv, https://doi.org/10.1101/812289
+If you use PWAS as part of work contributing to a scientific publication, we ask that you cite our paper: Brandes, N., Linial, N. & Linial, M. PWAS: proteome-wide association study—linking genes and phenotypes by functional variation in proteins. Genome Biol 21, 173 (2020). https://doi.org/10.1186/s13059-020-02089-x
