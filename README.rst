@@ -5,11 +5,10 @@ Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method f
 
 For more details on PWAS you can refer to our paper `PWAS: proteome-wide association study—linking genes and phenotypes by functional variation in proteins <https://doi.org/10.1186/s13059-020-02089-x>`_, published in Genome Biology (2020).
 
-.. raw:: html
+Or, if you are more a video person, you can watch this talk on YouTube (originally given at RECOMB 2020):
 
-   <div style = "color: red;">Test HTML text...</div>
-
-   <iframe width="560" height="315" src="https://www.youtube.com/embed/TcgE_xb8ecw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+.. image:: https://img.youtube.com/vi/TcgE_xb8ecw/0.jpg
+   :target: https://www.youtube.com/watch?v=TcgE_xb8ecw
 
 
 Installation
