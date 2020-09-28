@@ -1,7 +1,7 @@
 What is PWAS?
 =============
 
-Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies. PWAS detects protein-coding genes whose functional variabilities are correlated with given phenotypes across a cohort. It employs a machine-learning model to assess the functional damage caused to each protein within each sample (given the sample's genotype). These assessments are summarized as effect score matrices, where each combination of sample (row) and gene (column) is assigned a number between 0 (complete loss of function) to 1 (no effect). PWAS creates two such matrices, for either dominant or recessive inharitance. Following the creation of those matrices, PWAS can then test various phenotypes, looking for associations between the matrix columns (describing the functional variabilities of specific proteins) to phenotype values. In the case of a binary phenotype, a significant association would mean that the protein coded by the gene appears more damaged in cases than in controls (or vice versa).
+Proteome-Wide Association Study (PWAS) is a protein-centric, gene-based method for conducting genetic association studies. PWAS detects protein-coding genes whose functional variabilities are correlated with given phenotypes across a cohort. It employs a machine-learning model to assess the functional damage caused to each protein within each sample (given the sample's genotype). These assessments are summarized as effect score matrices, where each combination of sample (row) and gene (column) is assigned a number between 0 (complete loss of function) to 1 (no effect). PWAS creates two such matrices, for either dominant or recessive inheritance. Following the creation of those matrices, PWAS can then test various phenotypes, looking for associations between the matrix columns (describing the functional variabilities of specific proteins) to phenotype values. In the case of a binary phenotype, a significant association would mean that the protein coded by the gene appears more damaged in cases than in controls (or vice versa).
 
 For more details on PWAS you can refer to our paper `PWAS: proteome-wide association study—linking genes and phenotypes by functional variation in proteins <https://doi.org/10.1186/s13059-020-02089-x>`_, published in Genome Biology (2020).
 
@@ -96,7 +96,7 @@ Running PWAS consists of the following steps:
 
 3. **Aggregate the per-variant into per-gene effect scores**, which consists of:
 
-   3.1. Collect the varaint effect scores per gene
+   3.1. Collect the variant effect scores per gene
    
    3.2. Combine the variant effect scores with per-sample genotypes to obtain gene effect scores across the cohort's samples
 
@@ -136,7 +136,7 @@ Generating the meta CSV file of the genotype sources for the UK Biobank dataset 
 
     create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
     
-**Very important note**: There's actually a good reason to choosing the UK Biobank's imputed genotypes over their raw markers. Unlike vanilla GWAS and other gene-based method (e.g. SKAT), for which it's sufficient to have some sampling of the variants in each Linkage Disequilibrium block, PWAS actually requires full knowledge of all the variants present in each sample. The underlying reason is that PWAS actually tries to figure out what happenes to the genes (from functional perspective), and missing variants (with functional relevance) are likely to diminish its statistical power to uncover true associations. For this reason, PWAS is expected to work best with complete, unbiased genotyping (e.g. provided by whole-exome sequencing). If your genetic data was collected by SNP-array genotypes, then you will at least have to try to complete the misssing variants through imputation.  
+**Very important note**: There's actually a good reason to choosing the UK Biobank's imputed genotypes over their raw markers. Unlike vanilla GWAS and other gene-based method (e.g. SKAT), for which it's sufficient to have some sampling of the variants in each Linkage Disequilibrium block, PWAS actually requires full knowledge of all the variants present in each sample. The underlying reason is that PWAS actually tries to figure out what happens to the genes (from functional perspective), and missing variants (with functional relevance) are likely to diminish its statistical power to uncover true associations. For this reason, PWAS is expected to work best with complete, unbiased genotyping (e.g. provided by whole-exome sequencing). If your genetic data was collected by SNP-array genotypes, then you will at least have to try to complete the missing variants through imputation.  
     
     
 Step 2: Determine per-variant effect scores
@@ -146,7 +146,7 @@ Step 2: Determine per-variant effect scores
 Step 2.1: List all the unique variants in the input genotyping files
 --------------------------------------------------------------------
 
-To combine all the varaint descriptions across the input genotype sources into a unified list, simply use the ``list_all_variants`` command provided by PWAS.
+To combine all the variant descriptions across the input genotype sources into a unified list, simply use the ``list_all_variants`` command provided by PWAS.
 
 For example, to list all the unique imputed variants in the UK Biobank, run:
 
@@ -187,10 +187,10 @@ Step 3: Aggregate the per-variant into per-gene effect scores
 -------------------------------------------------------------
 
 
-Step 3.1: Collect the varaint effect scores per gene
+Step 3.1: Collect the variant effect scores per gene
 ----------------------------------------------------
 
-Having completed step 2, you should now have: i) a CSV file listing all the variants genotyped in your cohort, and ii) a JSON-lines file specifying all the effects of these variants on genes, where each variant-gene effect is assigned a functional score. In order to aggregate the per-variant effect scores into per-gene scores, PWAS first needs the variant effects to be organized per gene. It requires a seperate CSV file per gene listing all the variants affecting that gene. These CSV files should have, on top of all the columns in the original CSV file (that lists all the variants), an additional *effect_score* column with the effect score of each of the variants (with respect to the file's gene).
+Having completed step 2, you should now have: i) a CSV file listing all the variants genotyped in your cohort, and ii) a JSON-lines file specifying all the effects of these variants on genes, where each variant-gene effect is assigned a functional score. In order to aggregate the per-variant effect scores into per-gene scores, PWAS first needs the variant effects to be organized per gene. It requires a separate CSV file per gene listing all the variants affecting that gene. These CSV files should have, on top of all the columns in the original CSV file (that lists all the variants), an additional *effect_score* column with the effect score of each of the variants (with respect to the file's gene).
 
 To generate the per-gene files, simply use the ``organize_variant_effects_per_gene`` command provided by PWAS.
 
@@ -231,7 +231,7 @@ It might be a good idea to validate that you have the correct number of CSV file
    ls -l ./ukbb_imputation_variants_per_gene/ | wc -l
    ls -l ./ukbb_imputation_gene_effect_scores/ | wc -l
    
-The algorithm that aggregates the variant effect scores into gene effect scores is actually dependent on 5 parameters that the ``calc_gene_effect_scores`` command allows you to specifiy, although the default values are likely a sensible choice. For the full mathematical details of the aggregation algorithm, and the meaning of those parameters, please refer to our paper.
+The algorithm that aggregates the variant effect scores into gene effect scores is actually dependent on 5 parameters that the ``calc_gene_effect_scores`` command allows you to specify, although the default values are likely a sensible choice. For the full mathematical details of the aggregation algorithm, and the meaning of those parameters, please refer to our paper.
 
 
 Step 4: Find gene-phenotype associations
@@ -241,7 +241,7 @@ Step 4: Find gene-phenotype associations
 Step 4.1: Run association tests
 --------------------------------
 
-Having gone through step 1, you should have a CSV file with phenotypes and covariates, and having completed step 3 you shoud also have per-gene CSV files with the gene effect scores. The last step of PWAS is to simply look for statistical correlations between the phenotypes to the gene scores, in order to uncover gene-phenotype associations (with resepct to the functional variability captured by the pre-calculated gene effect scores, which, in the default case where FIRM has been used as the variant assessment tool, reflect the estimated fucntions of the proteins coded by those genes). In fact, this step consists of nothing more than routine statistical methods (linear and logistic regression), and you could, in principle, use any statistics software of your choice (e.g. PLINK, R, etc.). Still, PWAS comes with its own built-in implementation which also provides, on top p-values, some additional unique metrics. Unless you feel very confident that you know what you are doing, it is recommended that you just use the implementation of PWAS, as provided by the ``pwas_test_genes`` command.
+Having gone through step 1, you should have a CSV file with phenotypes and covariates, and having completed step 3 you should also have per-gene CSV files with the gene effect scores. The last step of PWAS is to simply look for statistical correlations between the phenotypes to the gene scores, in order to uncover gene-phenotype associations (with respect to the functional variability captured by the pre-calculated gene effect scores, which, in the default case where FIRM has been used as the variant assessment tool, reflect the estimated functions of the proteins coded by those genes). In fact, this step consists of nothing more than routine statistical methods (linear and logistic regression), and you could, in principle, use any statistics software of your choice (e.g. PLINK, R, etc.). Still, PWAS comes with its own built-in implementation which also provides, on top p-values, some additional unique metrics. Unless you feel very confident that you know what you are doing, it is recommended that you just use the implementation of PWAS, as provided by the ``pwas_test_genes`` command.
 
 To continue our ongoing UKBB example, let's say we want to find PWAS associations for type-II diabetes. Then simply run:
 
@@ -252,7 +252,7 @@ To continue our ongoing UKBB example, let's say we want to find PWAS association
    
 This process will go through each gene in ``./ukbb_imputation_gene_effect_scores/`` and run a logistic regression test of the "Type 2 diabetes" column in ``./ukbb_dataset.csv`` against the gene's effect scores (while also taking into account the covariates in the columns specified by ``./ukbb_covariate_columns.json``). It will save the resulted summary statistics of each gene as a separate CSV file in ``./ukbb_imputation_per_gene_type2_diabetes_pwas_results/``.
 
-This process too can be computationally intenstive (in terms of CPU time), especially for large datasets (with many samples and covariates) such as the UKBB. Fortunately, the ``pwas_test_genes`` command comes with a built-in functionality that allows one to distribute it across many computing resources. For full details on that, please refer to its help message. As an example, if you want to distribute the process across 1,000 tasks and send them to run on a cluster managed by SLURM, simply run:
+This process too can be computationally intensive (in terms of CPU time), especially for large datasets (with many samples and covariates) such as the UKBB. Fortunately, the ``pwas_test_genes`` command comes with a built-in functionality that allows one to distribute it across many computing resources. For full details on that, please refer to its help message. As an example, if you want to distribute the process across 1,000 tasks and send them to run on a cluster managed by SLURM, simply run:
 
 .. code-block:: sh
 
@@ -345,7 +345,7 @@ And combine the results to get the final summary statistics file:
    combine_pwas_results --genes-file=./genes_hg19.csv --per-gene-pwas-results-dir=./ukbb_imputation_per_gene_type2_diabetes_pwas_results/ --results-file=./ukbb_imputation_type2_diabetes_pwas_results.csv
  
 
-Licene
+License
 =======
 PWAS is a free open source project available under the `MIT License <https://en.wikipedia.org/wiki/MIT_License>`_.
  
