@@ -291,8 +291,8 @@ First, to generate the necessary phenotype & genotype files from the UKBB datase
 
 .. code-block:: sh
 
-    wget https://raw.githubusercontent.com/nadavbra/ukbb_parser/master/examples/phenotype_specs.py
-    create_ukbb_phenotype_dataset --phenotype-specs-file=./phenotype_specs.py --output-dataset-file=./ukbb_dataset.csv --output-covariates-columns-file=./ukbb_covariate_columns.json
+   wget https://raw.githubusercontent.com/nadavbra/ukbb_parser/master/examples/phenotype_specs.py
+   create_ukbb_phenotype_dataset --phenotype-specs-file=./phenotype_specs.py --output-dataset-file=./ukbb_dataset.csv --output-covariates-columns-file=./ukbb_covariate_columns.json
    create_ukbb_genotype_spec_file --genotyping-type=imputation --output-file=./ukbb_imputation_genotyping_spec.csv
    
 Second, you will have to list all the dataset's variants and determine the reference allele of each variant:
