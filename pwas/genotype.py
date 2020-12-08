@@ -119,7 +119,7 @@ def _create_fam_link_or_fix_it(original_fam_file_path, fixed_fam_file_path):
             fam_df.iloc[:, 5] = np.nan
                     
         try:
-            fam_df.to_csv(fixed_fam_file_path, sep = ' ', index = False, header = False)
+            fam_df.to_csv(fixed_fam_file_path, sep = '\s+', index = False, header = False)
         except OSError as e:
             if e.errno == 17:
                 log('%s: already exists after all.' % fixed_fam_file_path)
