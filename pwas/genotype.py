@@ -105,7 +105,7 @@ def _create_fam_link_or_fix_it(original_fam_file_path, fixed_fam_file_path):
     if os.path.exists(fixed_fam_file_path):
         return
 
-    fam_df = pd.read_csv(original_fam_file_path, sep = ' ', header = None)
+    fam_df = pd.read_csv(original_fam_file_path, sep = '\s+', header = None)
     
     if np.issubdtype(fam_df.iloc[:, 5].dtype, np.number):
         # The FAM file seems ok. Can just create a link for it
