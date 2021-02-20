@@ -116,7 +116,7 @@ if __name__ == '__main__':
     parser.add_argument('--phenotype-col', dest = 'phenotype_col', metavar = '<COL_NAME>', type = str, required = True, \
             help = 'The name of the column (within the dataset CSV file) for the phenotype to be tested. The phenotype can be either continuous or ' + \
             'binary (will be automatically detected if the values are only 0s and 1s).')
-    parser.add_argument('--covariate-cols', dest = 'covariate_cols', metavar = '<COL_NAME1>,<COL_NAME2>,...', type = int, nargs = '+', default = [], \
+    parser.add_argument('--covariate-cols', dest = 'covariate_cols', metavar = '<COL_NAME1>,<COL_NAME2>,...', type = str, nargs = '+', default = [], \
             help = 'Columns (within the dataset CSV file) to be considered as covariates. See also --covariate-cols-json-file.')
     parser.add_argument('--covariate-cols-json-file', dest = 'covariate_cols_json_file', metavar = '/path/to/covariate_columns.json', \
             type = get_parser_file_type(parser, must_exist = True), default = None, help = 'An optional JSON file with a list of column names to ' + \
