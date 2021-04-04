@@ -67,12 +67,12 @@ def handle_covariate_separation(phenotype_values, covariates, remove_multicollin
     
     if list(linearly_independent_covariate_column_indices) != list(range(len(covariates.columns))):
         if remove_multicollinear_covariates:
-            log('The %d provided covariates are multicollinear. Will retain only %d of them.' % (len(covariates), \
+            log('The %d provided covariates are multicollinear. Will retain only %d of them.' % (len(covariates.columns), \
                     len(linearly_independent_covariate_column_indices)))
             covariates = covariates.iloc[:, linearly_independent_covariate_column_indices]
         else:
             log(('Error: the %d provided covariates are multicollinear. Either provide only a subset of these covariates that are linearly ' + \
-                    'independent, or use the flag --remove-multicollinear-covariates.') % len(covariates))
+                    'independent, or use the flag --remove-multicollinear-covariates.') % len(covariates.columns))
             sys.exit(1)
             
     covariates, phenotype_values, _, removed_covariate_columns, _ = resolve_quasi_complete_separation_by_removing_binary_columns(covariates, \
@@ -83,7 +83,7 @@ def handle_covariate_separation(phenotype_values, covariates, remove_multicollin
             log('Remained with %d covariates and %d samples.' % covariates.shape[::-1])
         else:
             log(('Error: the %d covariates introduce quasi-complete separation with resepct to the phenotype. To allow automatic resolving ' + \
-                    'of this issue (as detailed above), you must use the flag --resolve-quasi-complete-covariate-separation.') % len(covariates))
+                    'of this issue (as detailed above), you must use the flag --resolve-quasi-complete-covariate-separation.') % len(covariates.columns))
             sys.exit(1)
             
     return phenotype_values, covariates
